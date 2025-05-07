@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=orgalife
+      - MYSQL_USER=orgalife
+      - MYSQL_PASSWORD=orgalife
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    depends_on:
+      - mariadb
+    environment:
+      - PMA_HOST=mariadb
+      - PMA_PORT=3306
+      - PMA_USER=orgalife
+      - PMA_PASSWORD=orgalife
+    ports:
+      - "8081:80"
+
+volumes:
+  mariadb_data:
