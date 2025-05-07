@@ -3,6 +3,7 @@ package com.ktor.routes
 import com.data.repository.ProductoRepository
 import com.data.repository.UsuarioRepository
 import com.ktor.serializers.BigDecimalSerializer
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
@@ -65,17 +66,27 @@ fun Route.productoRoutes() {
                 if (updated != null) call.respond(updated) else call.respond(mapOf("error" to "No se pudo actualizar producto"))
             }
             delete("/{id}") {
-                val id = call.parameters["id"]!!.toInt()
+                val id        = call.parameters["id"]!!.toInt()
                 val principal = call.principal<JWTPrincipal>()!!
-                val userId = principal.payload.getClaim("userId").asInt()
-                val existing = repo.getProductoById(id)
-                if (existing == null || existing.idVendedor != userId) {
-                    call.respond(mapOf("error" to "No autorizado o producto no existe"))
+                val userId    = principal.payload.getClaim("userId").asInt()
+                val rol       = principal.payload.getClaim("rol").asString()
+                val existing  = repo.getProductoById(id)
+
+                if (existing == null) {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "Producto no existe"))
                     return@delete
                 }
+
+                // Autorización: o soy owner o soy admin
+                if (existing.idVendedor != userId && rol != "admin") {
+                    call.respond(HttpStatusCode.Forbidden, mapOf("error" to "No autorizado"))
+                    return@delete
+                }
+
                 val deleted = repo.deleteProducto(id)
                 call.respond(mapOf("success" to deleted))
             }
+
             // Endpoint para comprar un producto
             post("/{id}/comprar") {
                 val idProducto = call.parameters["id"]!!.toInt()
