@@ -12,10 +12,10 @@ import com.data.models.Favoritos
 object DatabaseFactory {
     fun init() {
         val config = HikariConfig().apply {
-            jdbcUrl = "jdbc:mariadb://localhost:3306/orgalife"
+            jdbcUrl = "jdbc:mariadb://localhost:3306/quicksales"
             driverClassName = "org.mariadb.jdbc.Driver"
-            username = "orgalife"
-            password = "orgalife"
+            username = "quicksales"
+            password = "quicksales"
             maximumPoolSize = 10
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"

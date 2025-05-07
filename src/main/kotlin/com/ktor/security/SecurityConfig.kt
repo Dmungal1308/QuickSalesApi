@@ -10,11 +10,11 @@ import com.data.repository.UsuarioRepository
 fun Application.configureSecurity() {
     install(Authentication) {
         jwt("auth-jwt") {
-            realm = "orgalife"
+            realm = "quicksales"
             verifier(
                 JWT.require(Algorithm.HMAC256("mi_secreto"))
-                    .withAudience("orgalifeAudience")
-                    .withIssuer("orgalifeIssuer")
+                    .withAudience("quicksalesAudience")
+                    .withIssuer("quicksalesIssuer")
                     .build()
             )
             validate { credential ->

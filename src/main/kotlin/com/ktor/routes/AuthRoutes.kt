@@ -35,8 +35,8 @@ fun Route.authRoutes() {
                 return@post
             }
             val token = JWT.create()
-                .withAudience("orgalifeAudience")
-                .withIssuer("orgalifeIssuer")
+                .withAudience("quicksalesAudience")
+                .withIssuer("quicksalesIssuer")
                 .withClaim("userId", user.id)
                 .withClaim("rol", user.rol.name)
                 .withExpiresAt(Date(System.currentTimeMillis() + 36_000_00))

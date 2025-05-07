@@ -5,9 +5,9 @@ services:
     container_name: mariadb
     environment:
       - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=orgalife
-      - MYSQL_USER=orgalife
-      - MYSQL_PASSWORD=orgalife
+      - MYSQL_DATABASE=quicksales
+      - MYSQL_USER=quicksales
+      - MYSQL_PASSWORD=quicksales
     ports:
       - "3306:3306"
     volumes:
@@ -21,8 +21,8 @@ services:
     environment:
       - PMA_HOST=mariadb
       - PMA_PORT=3306
-      - PMA_USER=orgalife
-      - PMA_PASSWORD=orgalife
+      - PMA_USER=quicksales
+      - PMA_PASSWORD=quicksales
     ports:
       - "8081:80"
 
