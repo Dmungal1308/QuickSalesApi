@@ -1,7 +1,9 @@
 package com.data.models
 
+import com.ktor.serializers.BigDecimalSerializer
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Table
+import java.math.BigDecimal
 
 // Definición de roles
 enum class Role { admin, usuario }
@@ -14,6 +16,7 @@ object Usuarios : Table() {
     val correo = varchar("correo", 100).uniqueIndex()
     val imagenBase64 = text("imagen_base64").nullable()
     val rol = enumerationByName("rol", 10, Role::class).default(Role.usuario)
+    val saldo = decimal("saldo", 10, 2).default(BigDecimal.ZERO)
     override val primaryKey = PrimaryKey(id)
 }
 
@@ -25,5 +28,7 @@ data class Usuario(
     val contrasena: String,
     val correo: String,
     val imagenBase64: String? = null,
-    val rol: Role
+    val rol: Role,
+    @Serializable(with = BigDecimalSerializer::class)
+    val saldo: BigDecimal
 )

@@ -5,6 +5,7 @@ import com.data.models.Usuarios
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.math.BigDecimal
 
 class UsuarioRepository {
 
@@ -23,6 +24,7 @@ class UsuarioRepository {
             it[Usuarios.correo] = correo
             it[Usuarios.imagenBase64] = imagenBase64
             it[Usuarios.rol] = com.data.models.Role.valueOf(rol)
+            it[Usuarios.saldo] = BigDecimal.ZERO
         }
         stmt.resultedValues?.firstOrNull()?.let { row ->
             Usuario(
@@ -32,7 +34,8 @@ class UsuarioRepository {
                 contrasena = row[Usuarios.contrasena],
                 correo = row[Usuarios.correo],
                 imagenBase64 = row[Usuarios.imagenBase64],
-                rol = row[Usuarios.rol]
+                rol = row[Usuarios.rol],
+                saldo = row[Usuarios.saldo]
             )
         }
     }
@@ -47,7 +50,8 @@ class UsuarioRepository {
                     contrasena = row[Usuarios.contrasena],
                     correo = row[Usuarios.correo],
                     imagenBase64 = row[Usuarios.imagenBase64],
-                    rol = row[Usuarios.rol]
+                    rol = row[Usuarios.rol],
+                    saldo = row[Usuarios.saldo]
                 )
             }
             .singleOrNull()
@@ -63,7 +67,8 @@ class UsuarioRepository {
                     contrasena = row[Usuarios.contrasena],
                     correo = row[Usuarios.correo],
                     imagenBase64 = row[Usuarios.imagenBase64],
-                    rol = row[Usuarios.rol]
+                    rol = row[Usuarios.rol],
+                    saldo = row[Usuarios.saldo]
                 )
             }
             .singleOrNull()
@@ -90,5 +95,23 @@ class UsuarioRepository {
 
     fun deleteUsuario(id: Int): Boolean = transaction {
         Usuarios.deleteWhere { Usuarios.id eq id } > 0
+    }
+
+    fun depositar(usuarioId: Int, cantidad: BigDecimal): Boolean = transaction {
+        Usuarios.update({ Usuarios.id eq usuarioId }) {
+            with(SqlExpressionBuilder) {
+                it.update(saldo, saldo + cantidad)
+            }
+        } > 0
+    }
+
+    fun retirar(usuarioId: Int, cantidad: BigDecimal): Boolean = transaction {
+        val u = getById(usuarioId) ?: return@transaction false
+        if (u.saldo < cantidad) return@transaction false
+        Usuarios.update({ Usuarios.id eq usuarioId }) {
+            with(SqlExpressionBuilder) {
+                it.update(saldo, saldo - cantidad)
+            }
+        } > 0
     }
 }

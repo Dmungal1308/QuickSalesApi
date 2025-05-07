@@ -1,6 +1,7 @@
 package com.ktor.routes
 
 import com.data.repository.ProductoRepository
+import com.data.repository.UsuarioRepository
 import com.ktor.serializers.BigDecimalSerializer
 import io.ktor.server.application.*
 import io.ktor.server.auth.authenticate
@@ -10,6 +11,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.math.BigDecimal
 
 @Serializable
@@ -76,23 +78,36 @@ fun Route.productoRoutes() {
             }
             // Endpoint para comprar un producto
             post("/{id}/comprar") {
-                val id = call.parameters["id"]!!.toInt()
-                val principal = call.principal<JWTPrincipal>()!!
-                val userId = principal.payload.getClaim("userId").asInt()
-                val existing = repo.getProductoById(id)
-                if (existing == null) {
-                    call.respond(mapOf("error" to "Producto no encontrado"))
-                    return@post
+                val idProducto = call.parameters["id"]!!.toInt()
+                val userId     = call.principal<JWTPrincipal>()!!.payload.getClaim("userId").asInt()
+                val userRepo   = UsuarioRepository()
+                val producto   = repo.getProductoById(idProducto)
+
+                if (producto == null) {
+                    call.respond(mapOf("error" to "Producto no encontrado")); return@post
+                }
+                if (producto.idVendedor == userId) {
+                    call.respond(mapOf("error" to "No puedes comprar tu propio producto")); return@post
+                }
+                // 3.1) Validar saldo
+                val comprador = userRepo.getById(userId)!!
+                if (comprador.saldo < producto.precio) {
+                    call.respond(mapOf("error" to "Saldo insuficiente")); return@post
                 }
 
-                // <-- Aquí insertas la comprobación:
-                if (existing.idVendedor == userId) {
-                    call.respond(mapOf("error" to "No puedes comprar tu propio producto"))
-                    return@post
+                // 3.2) Hacer todo en una transacción
+                val exitoso = transaction {
+                    val ok1 = userRepo.retirar(userId, producto.precio)
+                    val ok2 = userRepo.depositar(producto.idVendedor, producto.precio)
+                    val ok3 = repo.buyProducto(idProducto, userId) != null
+                    ok1 && ok2 && ok3
                 }
 
-                val comprado = repo.buyProducto(id, userId)
-                if (comprado != null) call.respond(comprado) else call.respond(mapOf("error" to "No se pudo comprar producto"))
+                if (exitoso) {
+                    call.respond(repo.getProductoById(idProducto)!!)
+                } else {
+                    call.respond(mapOf("error" to "Error al procesar la compra"))
+                }
             }
         }
     }
