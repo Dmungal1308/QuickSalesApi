@@ -10,7 +10,7 @@ class ProductoRepository {
     fun createProducto(
         nombre: String,
         descripcion: String,
-        imagenBase64: String,
+        imagenBase64: String?,
         precio: java.math.BigDecimal,
         idVendedor: Int
     ): Producto? = transaction {
@@ -69,7 +69,7 @@ class ProductoRepository {
         id: Int,
         nombre: String,
         descripcion: String,
-        imagenBase64: String,
+        imagenBase64: String?,
         precio: java.math.BigDecimal,
         estado: String
     ): Producto? = transaction {

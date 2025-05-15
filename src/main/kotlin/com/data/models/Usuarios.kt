@@ -28,7 +28,7 @@ data class Usuario(
     val contrasena: String,
     val correo: String,
     val imagenBase64: String? = null,
-    val rol: Role,
+    val rol: String? = null,
     @Serializable(with = BigDecimalSerializer::class)
     val saldo: BigDecimal
 )

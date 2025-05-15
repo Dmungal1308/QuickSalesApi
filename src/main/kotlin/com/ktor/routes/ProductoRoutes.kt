@@ -20,10 +20,12 @@ import java.math.BigDecimal
 data class ProductoRequest(
     val nombre: String,
     val descripcion: String,
-    val imagenBase64: String,
+    // Pon nullable y un valor por defecto
+    val imagenBase64: String? = null,
     @Serializable(with = BigDecimalSerializer::class)
     val precio: BigDecimal
 )
+
 
 fun Route.productoRoutes() {
     val repo = ProductoRepository()

@@ -1,3 +1,4 @@
+// File: com/data/repository/UsuarioRepository.kt
 package com.data.repository
 
 import com.data.models.Usuario
@@ -18,24 +19,24 @@ class UsuarioRepository {
         rol: String
     ): Usuario? = transaction {
         val stmt = Usuarios.insert {
-            it[Usuarios.nombre] = nombre
+            it[Usuarios.nombre]        = nombre
             it[Usuarios.nombreUsuario] = nombreUsuario
-            it[Usuarios.contrasena] = contrasena
-            it[Usuarios.correo] = correo
-            it[Usuarios.imagenBase64] = imagenBase64
-            it[Usuarios.rol] = com.data.models.Role.valueOf(rol)
-            it[Usuarios.saldo] = BigDecimal.ZERO
+            it[Usuarios.contrasena]    = contrasena
+            it[Usuarios.correo]        = correo
+            it[Usuarios.imagenBase64]  = imagenBase64
+            it[Usuarios.rol]           = com.data.models.Role.valueOf(rol)
+            it[Usuarios.saldo]         = BigDecimal.ZERO
         }
         stmt.resultedValues?.firstOrNull()?.let { row ->
             Usuario(
-                id = row[Usuarios.id],
-                nombre = row[Usuarios.nombre],
+                id            = row[Usuarios.id],
+                nombre        = row[Usuarios.nombre],
                 nombreUsuario = row[Usuarios.nombreUsuario],
-                contrasena = row[Usuarios.contrasena],
-                correo = row[Usuarios.correo],
-                imagenBase64 = row[Usuarios.imagenBase64],
-                rol = row[Usuarios.rol],
-                saldo = row[Usuarios.saldo]
+                contrasena    = row[Usuarios.contrasena],
+                correo        = row[Usuarios.correo],
+                imagenBase64  = row[Usuarios.imagenBase64],
+                rol           = row[Usuarios.rol].toString(),
+                saldo         = row[Usuarios.saldo]
             )
         }
     }
@@ -44,14 +45,14 @@ class UsuarioRepository {
         Usuarios.select { Usuarios.correo eq correo }
             .map { row ->
                 Usuario(
-                    id = row[Usuarios.id],
-                    nombre = row[Usuarios.nombre],
+                    id            = row[Usuarios.id],
+                    nombre        = row[Usuarios.nombre],
                     nombreUsuario = row[Usuarios.nombreUsuario],
-                    contrasena = row[Usuarios.contrasena],
-                    correo = row[Usuarios.correo],
-                    imagenBase64 = row[Usuarios.imagenBase64],
-                    rol = row[Usuarios.rol],
-                    saldo = row[Usuarios.saldo]
+                    contrasena    = row[Usuarios.contrasena],
+                    correo        = row[Usuarios.correo],
+                    imagenBase64  = row[Usuarios.imagenBase64],
+                    rol           = row[Usuarios.rol].toString(),
+                    saldo         = row[Usuarios.saldo]
                 )
             }
             .singleOrNull()
@@ -61,14 +62,14 @@ class UsuarioRepository {
         Usuarios.select { Usuarios.id eq id }
             .map { row ->
                 Usuario(
-                    id = row[Usuarios.id],
-                    nombre = row[Usuarios.nombre],
+                    id            = row[Usuarios.id],
+                    nombre        = row[Usuarios.nombre],
                     nombreUsuario = row[Usuarios.nombreUsuario],
-                    contrasena = row[Usuarios.contrasena],
-                    correo = row[Usuarios.correo],
-                    imagenBase64 = row[Usuarios.imagenBase64],
-                    rol = row[Usuarios.rol],
-                    saldo = row[Usuarios.saldo]
+                    contrasena    = row[Usuarios.contrasena],
+                    correo        = row[Usuarios.correo],
+                    imagenBase64  = row[Usuarios.imagenBase64],
+                    rol           = row[Usuarios.rol].toString(),
+                    saldo         = row[Usuarios.saldo]
                 )
             }
             .singleOrNull()
@@ -84,11 +85,18 @@ class UsuarioRepository {
         rol: String
     ): Boolean = transaction {
         Usuarios.update({ Usuarios.id eq id }) {
-            it[Usuarios.nombre] = nombre
+            it[Usuarios.nombre]        = nombre
             it[Usuarios.nombreUsuario] = nombreUsuario
-            it[Usuarios.contrasena] = contrasena
-            it[Usuarios.correo] = correo
-            it[Usuarios.imagenBase64] = imagenBase64
+            it[Usuarios.contrasena]    = contrasena
+            it[Usuarios.correo]        = correo
+            it[Usuarios.imagenBase64]  = imagenBase64
+            it[Usuarios.rol]           = com.data.models.Role.valueOf(rol)
+        } > 0
+    }
+
+    /** Permite solo cambiar el rol de un usuario */
+    fun updateRol(id: Int, rol: String): Boolean = transaction {
+        Usuarios.update({ Usuarios.id eq id }) {
             it[Usuarios.rol] = com.data.models.Role.valueOf(rol)
         } > 0
     }
@@ -100,7 +108,7 @@ class UsuarioRepository {
     fun depositar(usuarioId: Int, cantidad: BigDecimal): Boolean = transaction {
         Usuarios.update({ Usuarios.id eq usuarioId }) {
             with(SqlExpressionBuilder) {
-                it.update(saldo, saldo + cantidad)
+                it.update(Usuarios.saldo, Usuarios.saldo + cantidad)
             }
         } > 0
     }
@@ -110,7 +118,7 @@ class UsuarioRepository {
         if (u.saldo < cantidad) return@transaction false
         Usuarios.update({ Usuarios.id eq usuarioId }) {
             with(SqlExpressionBuilder) {
-                it.update(saldo, saldo - cantidad)
+                it.update(Usuarios.saldo, Usuarios.saldo - cantidad)
             }
         } > 0
     }

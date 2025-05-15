@@ -13,7 +13,7 @@ object Productos : Table() {
     val id = integer("id").autoIncrement()
     val nombre = varchar("nombre", 100)
     val descripcion = text("descripcion")
-    val imagenBase64 = text("imagen_base64")
+    val imagenBase64 = text("imagen_base64").nullable()
     val precio = decimal("precio", 10, 2)
     val estado = enumerationByName("estado", 12, Estado::class).default(Estado.`en venta`)
     // Usar reference/optReference para columnas de llave foránea
@@ -27,7 +27,7 @@ data class Producto(
     val id: Int,
     val nombre: String,
     val descripcion: String,
-    val imagenBase64: String,
+    val imagenBase64: String? = null,
     @Serializable(with = BigDecimalSerializer::class)
     val precio: BigDecimal,
     val estado: Estado,

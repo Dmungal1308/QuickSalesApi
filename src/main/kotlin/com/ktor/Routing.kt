@@ -1,15 +1,15 @@
 package com.ktor
 
+import com.ktor.routes.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
-import com.ktor.routes.authRoutes
-import com.ktor.routes.productoRoutes
-import com.ktor.routes.favoritoRoutes
-import com.ktor.routes.userRoutes
 
 fun Application.configureRouting() {
     routing {
         authRoutes()
+        pingRoute()
         productoRoutes()
         favoritoRoutes()
         userRoutes()
