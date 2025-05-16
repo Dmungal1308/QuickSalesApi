@@ -122,4 +122,25 @@ class UsuarioRepository {
             }
         } > 0
     }
+    fun updateProfileFields(
+        id: Int,
+        nombre: String,
+        nombreUsuario: String,
+        correo: String,
+        imagenBase64: String?
+    ): Boolean = transaction {
+        Usuarios.update({ Usuarios.id eq id }) {
+            it[Usuarios.nombre]        = nombre
+            it[Usuarios.nombreUsuario] = nombreUsuario
+            it[Usuarios.correo]        = correo
+            it[Usuarios.imagenBase64]  = imagenBase64
+        } > 0
+    }
+
+    /** Cambia únicamente la contraseña */
+    fun changePassword(id: Int, newPassword: String): Boolean = transaction {
+        Usuarios.update({ Usuarios.id eq id }) {
+            it[Usuarios.contrasena] = newPassword
+        } > 0
+    }
 }

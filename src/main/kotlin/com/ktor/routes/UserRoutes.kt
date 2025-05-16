@@ -4,6 +4,7 @@ package com.ktor.routes
 import com.data.repository.UsuarioRepository
 import com.ktor.serializers.BigDecimalSerializer
 import io.ktor.http.*
+import io.ktor.server.application.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -33,6 +34,60 @@ fun Route.userRoutes() {
 
     authenticate("auth-jwt") {
         route("/users") {
+            get("/me") {
+                val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("userId").asInt()
+                val user = repo.getById(userId)
+                if (user != null) call.respond(user)
+                else call.respond(HttpStatusCode.NotFound, mapOf("error" to "Usuario no encontrado"))
+            }
+
+            // --- PUT /users/me  (actualizar perfil sin tocar contraseña)
+            @Serializable
+            data class ProfileUpdateRequest(
+                val nombre: String,
+                val nombreUsuario: String,
+                val correo: String,
+                val imagenBase64: String? = null
+            )
+            put("/me") {
+                val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("userId").asInt()
+                val req = call.receive<ProfileUpdateRequest>()
+                try {
+                    val ok = repo.updateProfileFields(
+                        id            = userId,
+                        nombre        = req.nombre,
+                        nombreUsuario = req.nombreUsuario,
+                        correo        = req.correo,
+                        imagenBase64  = req.imagenBase64
+                    )
+                    if (!ok) {
+                        call.respond(HttpStatusCode.BadRequest, mapOf("error" to "No se pudo actualizar perfil"))
+                        return@put
+                    }
+                    // Leer de nuevo y devolver objeto completo
+                    val updated = repo.getById(userId)
+                        ?: return@put call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Perfil actualizado pero no se pudo leer"))
+                    call.respond(updated)
+                } catch (e: Exception) {
+                    // Log interno
+                    application.log.error("Error actualizando perfil de usuario $userId", e)
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        mapOf("error" to (e.localizedMessage ?: "Error desconocido"))
+                    )
+                }
+            }
+
+            // --- PUT /users/me/password  (cambiar contraseña)
+            @Serializable
+            data class PasswordChangeRequest(val newPassword: String)
+            put("/me/password") {
+                val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("userId").asInt()
+                val req = call.receive<PasswordChangeRequest>()
+                val ok = repo.changePassword(userId, req.newPassword)
+                if (ok) call.respond(mapOf("success" to true))
+                else    call.respond(HttpStatusCode.BadRequest, mapOf("error" to "No se pudo cambiar contraseña"))
+            }
             // Admin borra usuario por ID
             delete("/{id}") {
                 val principal = call.principal<JWTPrincipal>()!!
