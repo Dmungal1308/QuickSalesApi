@@ -105,7 +105,8 @@ fun Route.productoRoutes() {
                 // 3.1) Validar saldo
                 val comprador = userRepo.getById(userId)!!
                 if (comprador.saldo < producto.precio) {
-                    call.respond(mapOf("error" to "Saldo insuficiente")); return@post
+                    call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Saldo insuficiente"))
+                    return@post
                 }
 
                 // 3.2) Hacer todo en una transacción
