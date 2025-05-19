@@ -1,6 +1,7 @@
 // File: com/ktor/routes/UserRoutes.kt
 package com.ktor.routes
 
+import com.data.models.Usuario
 import com.data.repository.UsuarioRepository
 import com.ktor.serializers.BigDecimalSerializer
 import io.ktor.http.*
@@ -165,6 +166,31 @@ fun Route.userRoutes() {
                 val ok = repo.retirar(id, req.cantidad)
                 if (ok) call.respond(mapOf("success" to true))
                 else    call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Saldo insuficiente o fallo"))
+            }
+            get("/{id}") {
+                val id = call.parameters["id"]?.toIntOrNull()
+                if (id == null) {
+                    call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Id inválido"))
+                    return@get
+                }
+                val user = repo.getById(id)
+                if (user != null) {
+                    // no devolvemos la contraseña
+                    call.respond(
+                        Usuario(
+                            id            = user.id,
+                            nombre        = user.nombre,
+                            nombreUsuario = user.nombreUsuario,
+                            contrasena    = "",              // o elimínala del DTO
+                            correo        = user.correo,
+                            imagenBase64  = user.imagenBase64,
+                            rol           = user.rol,
+                            saldo         = user.saldo
+                        )
+                    )
+                } else {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "Usuario no encontrado"))
+                }
             }
         }
     }
