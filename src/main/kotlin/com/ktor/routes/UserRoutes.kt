@@ -2,6 +2,7 @@
 package com.ktor.routes
 
 import com.data.models.Usuario
+import com.data.models.Usuarios
 import com.data.repository.UsuarioRepository
 import com.ktor.serializers.BigDecimalSerializer
 import io.ktor.http.*
@@ -12,6 +13,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
+import org.jetbrains.exposed.sql.selectAll
 import java.math.BigDecimal
 
 @Serializable
@@ -192,6 +194,17 @@ fun Route.userRoutes() {
                     call.respond(HttpStatusCode.NotFound, mapOf("error" to "Usuario no encontrado"))
                 }
             }
+            get {
+                val principal = call.principal<JWTPrincipal>()!!
+                val rol = principal.payload.getClaim("rol").asString()
+                if (rol != "admin") {
+                    call.respond(HttpStatusCode.Forbidden, mapOf("error" to "Solo admin"))
+                    return@get
+                }
+                val all = repo.getAllUsuarios()              // <-- aquí ya va dentro de transaction
+                call.respond(all)
+            }
+
         }
     }
 }

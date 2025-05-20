@@ -143,4 +143,19 @@ class UsuarioRepository {
             it[Usuarios.contrasena] = newPassword
         } > 0
     }
+
+    fun getAllUsuarios(): List<Usuario> = transaction {
+        Usuarios.selectAll().map { row ->
+            Usuario(
+                id            = row[Usuarios.id],
+                nombre        = row[Usuarios.nombre],
+                nombreUsuario = row[Usuarios.nombreUsuario],
+                contrasena    = "",                              // no devolvemos pwd
+                correo        = row[Usuarios.correo],
+                imagenBase64  = row[Usuarios.imagenBase64],
+                rol           = row[Usuarios.rol].toString(),
+                saldo         = row[Usuarios.saldo]
+            )
+        }
+    }
 }
