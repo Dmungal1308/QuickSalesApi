@@ -13,5 +13,6 @@ fun Application.configureRouting() {
         productoRoutes()
         favoritoRoutes()
         userRoutes()
+        chatRoutes()
     }
 }

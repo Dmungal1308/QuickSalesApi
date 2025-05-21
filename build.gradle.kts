@@ -44,4 +44,6 @@ dependencies {
 
     // Driver de MariaDB
     implementation("org.mariadb.jdbc:mariadb-java-client:3.1.2")
+
+    implementation("joda-time:joda-time:2.10.14")
 }

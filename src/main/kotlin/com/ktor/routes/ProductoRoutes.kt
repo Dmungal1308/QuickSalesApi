@@ -67,6 +67,19 @@ fun Route.productoRoutes() {
                 )
                 if (updated != null) call.respond(updated) else call.respond(mapOf("error" to "No se pudo actualizar producto"))
             }
+            get("{id}") {
+                val id = call.parameters["id"]?.toIntOrNull()
+                if (id == null) {
+                    call.respond(HttpStatusCode.BadRequest, mapOf("error" to "ID inválido"))
+                    return@get
+                }
+                val producto = repo.getProductoById(id)
+                if (producto != null) {
+                    call.respond(producto)
+                } else {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "Producto no encontrado"))
+                }
+            }
             delete("/{id}") {
                 val id        = call.parameters["id"]!!.toInt()
                 val principal = call.principal<JWTPrincipal>()!!
