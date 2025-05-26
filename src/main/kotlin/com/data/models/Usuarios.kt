@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Table
 import java.math.BigDecimal
 
-// Definición de roles
 enum class Role { admin, usuario }
 
 object Usuarios : Table() {
