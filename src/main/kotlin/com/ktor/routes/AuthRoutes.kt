@@ -1,9 +1,7 @@
-// File: com/ktor/routes/AuthRoutes.kt
 package com.ktor.routes
 
-import com.data.models.Usuario            // tu data class Serializable
+import com.data.models.Usuario
 import com.data.repository.UsuarioRepository
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -28,7 +26,6 @@ data class LoginRequest(
     val contrasena: String
 )
 
-// Nuevo DTO de respuesta de login
 @Serializable
 data class LoginResponse(
     val token: String,
@@ -69,7 +66,6 @@ fun Route.authRoutes() {
                 .withExpiresAt(Date(System.currentTimeMillis() + 36_000_00))
                 .sign(Algorithm.HMAC256("mi_secreto"))
 
-            // Respondemos token + user completo
             call.respond(LoginResponse(token, user))
         }
     }

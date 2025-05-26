@@ -17,11 +17,9 @@ import org.jetbrains.exposed.sql.selectAll
 import java.math.BigDecimal
 
 @Serializable
-/** DTO para actualizar rol de usuario */
 data class RoleUpdateRequest(val rol: String)
 
 @Serializable
-/** DTO para operaciones de monedero */
 data class AmountRequest(
     @Serializable(with = BigDecimalSerializer::class)
     val cantidad: BigDecimal
@@ -44,7 +42,6 @@ fun Route.userRoutes() {
                 else call.respond(HttpStatusCode.NotFound, mapOf("error" to "Usuario no encontrado"))
             }
 
-            // --- PUT /users/me  (actualizar perfil sin tocar contraseña)
             @Serializable
             data class ProfileUpdateRequest(
                 val nombre: String,
@@ -67,12 +64,10 @@ fun Route.userRoutes() {
                         call.respond(HttpStatusCode.BadRequest, mapOf("error" to "No se pudo actualizar perfil"))
                         return@put
                     }
-                    // Leer de nuevo y devolver objeto completo
                     val updated = repo.getById(userId)
                         ?: return@put call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Perfil actualizado pero no se pudo leer"))
                     call.respond(updated)
                 } catch (e: Exception) {
-                    // Log interno
                     application.log.error("Error actualizando perfil de usuario $userId", e)
                     call.respond(
                         HttpStatusCode.InternalServerError,
@@ -81,7 +76,6 @@ fun Route.userRoutes() {
                 }
             }
 
-            // --- PUT /users/me/password  (cambiar contraseña)
             @Serializable
             data class PasswordChangeRequest(val newPassword: String)
             put("/me/password") {
@@ -91,7 +85,6 @@ fun Route.userRoutes() {
                 if (ok) call.respond(mapOf("success" to true))
                 else    call.respond(HttpStatusCode.BadRequest, mapOf("error" to "No se pudo cambiar contraseña"))
             }
-            // Admin borra usuario por ID
             delete("/{id}") {
                 val principal = call.principal<JWTPrincipal>()!!
                 val rol       = principal.payload.getClaim("rol").asString()
@@ -105,7 +98,6 @@ fun Route.userRoutes() {
                 else   call.respond(HttpStatusCode.NotFound, mapOf("error" to "Usuario no encontrado"))
             }
 
-            // Admin cambia el rol de un usuario
             put("/{id}/rol") {
                 val principal = call.principal<JWTPrincipal>()!!
                 val rolCaller = principal.payload.getClaim("rol").asString()
@@ -135,14 +127,12 @@ fun Route.userRoutes() {
                 }
             }
 
-            // Admin deposita saldo a un usuario
             post("/{id}/depositar") {
                 val principal = call.principal<JWTPrincipal>()!!
                 val rolCaller = principal.payload.getClaim("rol").asString()
                 val callerId  = principal.payload.getClaim("userId").asInt()
                 val idParam   = call.parameters["id"]!!.toInt()
 
-                // permitimos si es admin O si está depositando en su propia cuenta
                 if (rolCaller != "admin" && callerId != idParam) {
                     call.respond(HttpStatusCode.Forbidden, mapOf("error" to "No autorizado"))
                     return@post
@@ -153,7 +143,6 @@ fun Route.userRoutes() {
                 else    call.respond(HttpStatusCode.BadRequest, mapOf("error" to "No se pudo depositar"))
             }
 
-            // Admin retira saldo de un usuario
             post("/{id}/retirar") {
                 val principal = call.principal<JWTPrincipal>()!!
                 val rolCaller = principal.payload.getClaim("rol").asString()
@@ -177,13 +166,12 @@ fun Route.userRoutes() {
                 }
                 val user = repo.getById(id)
                 if (user != null) {
-                    // no devolvemos la contraseña
                     call.respond(
                         Usuario(
                             id            = user.id,
                             nombre        = user.nombre,
                             nombreUsuario = user.nombreUsuario,
-                            contrasena    = "",              // o elimínala del DTO
+                            contrasena    = "",
                             correo        = user.correo,
                             imagenBase64  = user.imagenBase64,
                             rol           = user.rol,
@@ -201,7 +189,7 @@ fun Route.userRoutes() {
                     call.respond(HttpStatusCode.Forbidden, mapOf("error" to "Solo admin"))
                     return@get
                 }
-                val all = repo.getAllUsuarios()              // <-- aquí ya va dentro de transaction
+                val all = repo.getAllUsuarios()
                 call.respond(all)
             }
 

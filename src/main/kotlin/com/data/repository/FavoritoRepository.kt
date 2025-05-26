@@ -8,12 +8,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 class FavoritoRepository {
     fun addFavorito(idUsuario: Int, idProducto: Int): Favorito? = transaction {
-        // Insertamos el favorito (fechaAgregado vendrá por defecto)
         Favoritos.insert {
             it[Favoritos.idUsuario] = idUsuario
             it[Favoritos.idProducto] = idProducto
         }
-        // Lo volvemos a leer para obtener también la fechaAgregado
         Favoritos
             .select { (Favoritos.idUsuario eq idUsuario) and (Favoritos.idProducto eq idProducto) }
             .map { row ->

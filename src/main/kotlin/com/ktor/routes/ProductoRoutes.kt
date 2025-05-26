@@ -16,11 +16,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.math.BigDecimal
 
 @Serializable
-/** Request DTO para productos */
 data class ProductoRequest(
     val nombre: String,
     val descripcion: String,
-    // Pon nullable y un valor por defecto
     val imagenBase64: String? = null,
     @Serializable(with = BigDecimalSerializer::class)
     val precio: BigDecimal
@@ -92,7 +90,6 @@ fun Route.productoRoutes() {
                     return@delete
                 }
 
-                // Autorización: o soy owner o soy admin
                 if (existing.idVendedor != userId && rol != "admin") {
                     call.respond(HttpStatusCode.Forbidden, mapOf("error" to "No autorizado"))
                     return@delete
@@ -102,7 +99,6 @@ fun Route.productoRoutes() {
                 call.respond(mapOf("success" to deleted))
             }
 
-            // Endpoint para comprar un producto
             post("/{id}/comprar") {
                 val idProducto = call.parameters["id"]!!.toInt()
                 val userId     = call.principal<JWTPrincipal>()!!.payload.getClaim("userId").asInt()
@@ -115,14 +111,12 @@ fun Route.productoRoutes() {
                 if (producto.idVendedor == userId) {
                     call.respond(mapOf("error" to "No puedes comprar tu propio producto")); return@post
                 }
-                // 3.1) Validar saldo
                 val comprador = userRepo.getById(userId)!!
                 if (comprador.saldo < producto.precio) {
                     call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Saldo insuficiente"))
                     return@post
                 }
 
-                // 3.2) Hacer todo en una transacción
                 val exitoso = transaction {
                     val ok1 = userRepo.retirar(userId, producto.precio)
                     val ok2 = userRepo.depositar(producto.idVendedor, producto.precio)

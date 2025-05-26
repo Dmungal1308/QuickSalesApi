@@ -16,7 +16,6 @@ object Productos : Table() {
     val imagenBase64 = text("imagen_base64").nullable()
     val precio = decimal("precio", 10, 2)
     val estado = enumerationByName("estado", 12, Estado::class).default(Estado.`en venta`)
-    // Usar reference/optReference para columnas de llave foránea
     val idVendedor = reference("id_vendedor", Usuarios.id, onDelete = ReferenceOption.CASCADE)
     val idComprador = optReference("id_comprador", Usuarios.id, onDelete = ReferenceOption.CASCADE)
     override val primaryKey = PrimaryKey(id)

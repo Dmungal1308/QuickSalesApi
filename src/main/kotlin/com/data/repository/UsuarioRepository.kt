@@ -75,26 +75,7 @@ class UsuarioRepository {
             .singleOrNull()
     }
 
-    fun updateUsuario(
-        id: Int,
-        nombre: String,
-        nombreUsuario: String,
-        contrasena: String,
-        correo: String,
-        imagenBase64: String?,
-        rol: String
-    ): Boolean = transaction {
-        Usuarios.update({ Usuarios.id eq id }) {
-            it[Usuarios.nombre]        = nombre
-            it[Usuarios.nombreUsuario] = nombreUsuario
-            it[Usuarios.contrasena]    = contrasena
-            it[Usuarios.correo]        = correo
-            it[Usuarios.imagenBase64]  = imagenBase64
-            it[Usuarios.rol]           = com.data.models.Role.valueOf(rol)
-        } > 0
-    }
 
-    /** Permite solo cambiar el rol de un usuario */
     fun updateRol(id: Int, rol: String): Boolean = transaction {
         Usuarios.update({ Usuarios.id eq id }) {
             it[Usuarios.rol] = com.data.models.Role.valueOf(rol)
@@ -137,7 +118,6 @@ class UsuarioRepository {
         } > 0
     }
 
-    /** Cambia únicamente la contraseña */
     fun changePassword(id: Int, newPassword: String): Boolean = transaction {
         Usuarios.update({ Usuarios.id eq id }) {
             it[Usuarios.contrasena] = newPassword
@@ -150,7 +130,7 @@ class UsuarioRepository {
                 id            = row[Usuarios.id],
                 nombre        = row[Usuarios.nombre],
                 nombreUsuario = row[Usuarios.nombreUsuario],
-                contrasena    = "",                              // no devolvemos pwd
+                contrasena    = "",
                 correo        = row[Usuarios.correo],
                 imagenBase64  = row[Usuarios.imagenBase64],
                 rol           = row[Usuarios.rol].toString(),
