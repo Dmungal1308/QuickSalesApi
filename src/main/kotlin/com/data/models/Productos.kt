@@ -6,7 +6,6 @@ import org.jetbrains.exposed.sql.ReferenceOption
 import java.math.BigDecimal
 import com.ktor.serializers.BigDecimalSerializer
 
-// Enumeración de estados
 enum class Estado { `en venta`, reservado, comprado }
 
 object Productos : Table() {

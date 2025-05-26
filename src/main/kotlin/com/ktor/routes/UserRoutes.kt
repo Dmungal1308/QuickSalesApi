@@ -1,4 +1,3 @@
-// File: com/ktor/routes/UserRoutes.kt
 package com.ktor.routes
 
 import com.data.models.Usuario

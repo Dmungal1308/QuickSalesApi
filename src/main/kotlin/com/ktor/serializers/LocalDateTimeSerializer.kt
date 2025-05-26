@@ -1,4 +1,3 @@
-// Nuevo archivo: com/ktor/serializers/LocalDateTimeSerializer.kt
 package com.ktor.serializers
 
 import kotlinx.serialization.KSerializer

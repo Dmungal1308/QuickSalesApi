@@ -1,4 +1,3 @@
-// File: com/data/repository/UsuarioRepository.kt
 package com.data.repository
 
 import com.data.models.Usuario
