@@ -5,6 +5,8 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.ReferenceOption
 import java.math.BigDecimal
 import com.ktor.serializers.BigDecimalSerializer
+import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.TextColumnType
 
 enum class Estado { `en venta`, reservado, comprado }
 
@@ -12,7 +14,8 @@ object Productos : Table() {
     val id = integer("id").autoIncrement()
     val nombre = varchar("nombre", 100)
     val descripcion = text("descripcion")
-    val imagenBase64 = text("imagen_base64").nullable()
+    val imagenBase64: Column<String?> =
+        registerColumn<String>("imagen_base64", TextColumnType("LONGTEXT")).nullable()
     val precio = decimal("precio", 10, 2)
     val estado = enumerationByName("estado", 12, Estado::class).default(Estado.`en venta`)
     val idVendedor = reference("id_vendedor", Usuarios.id, onDelete = ReferenceOption.CASCADE)

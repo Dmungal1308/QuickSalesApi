@@ -2,7 +2,9 @@ package com.data.models
 
 import com.ktor.serializers.BigDecimalSerializer
 import kotlinx.serialization.Serializable
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.TextColumnType
 import java.math.BigDecimal
 
 enum class Role { admin, usuario }
@@ -13,7 +15,8 @@ object Usuarios : Table() {
     val nombreUsuario = varchar("nombre_usuario", 50).uniqueIndex()
     val contrasena = varchar("contrasena", 255)
     val correo = varchar("correo", 100).uniqueIndex()
-    val imagenBase64 = text("imagen_base64").nullable()
+    val imagenBase64: Column<String?> =
+        registerColumn<String>("imagen_base64", TextColumnType("LONGTEXT")).nullable()
     val rol = enumerationByName("rol", 10, Role::class).default(Role.usuario)
     val saldo = decimal("saldo", 10, 2).default(BigDecimal.ZERO)
     override val primaryKey = PrimaryKey(id)
