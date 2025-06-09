@@ -27,7 +27,6 @@ QuickSales es una API REST desarrollada con **Ktor** y **Kotlin**, diseñada par
     - [Ping](#ping)
   - [Seguridad](#seguridad)
   - [Configuración de la base de datos](#configuración-de-la-base-de-datos)
-  - [Construcción y ejecución](#construcción-y-ejecución)
 
 ---
 
@@ -326,33 +325,6 @@ object DatabaseFactory {
 ```
 
 Ajusta `jdbcUrl` y credenciales en `DatabaseFactory.kt` o en variables de entorno.
-
----
-
-## Construcción y ejecución
-
-```bash
-# Ejecutar tests
-gradlew test
-
-# Compilar
-gradlew build
-
-# Crear JAR ejecutable
-gradlew buildFatJar
-
-# Ejecutar localmente
-gradlew run
-# o con Docker
-gradlew runDocker
-```
-
-Si todo va bien, verás en consola:
-
-```
-2025-05-26 10:00:00.000 [main] INFO  Application - Started in Xs.
-2025-05-26 10:00:00.100 [main] INFO  Application - Listening at http://0.0.0.0:8080
-```
 
 ---
 
